@@ -1,6 +1,8 @@
 package dk.colle.steamproject.startscreen.data.model
 
-interface GameRemote {
-    val id: Int
-    val name: String
-}
+import com.google.gson.annotations.SerializedName
+
+data class GameRemote(
+    @SerializedName("appid") val id: Int,
+    @SerializedName("name") val name: String
+)
