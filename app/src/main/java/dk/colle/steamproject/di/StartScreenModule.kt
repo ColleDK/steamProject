@@ -5,10 +5,14 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import dk.colle.steamproject.BuildConfig
+import dk.colle.steamproject.startscreen.data.AllGamesPagedService
 import dk.colle.steamproject.startscreen.data.AllGamesService
 import dk.colle.steamproject.startscreen.data.GameDetailService
+import dk.colle.steamproject.startscreen.data.usecase.GetAllGamesPagedUseCase
 import dk.colle.steamproject.startscreen.data.usecase.GetAllGamesUseCase
+import dk.colle.steamproject.startscreen.data.usecase.GetAllGamesWithInformationUseCase
 import dk.colle.steamproject.startscreen.data.usecase.GetGameInformationUseCase
+import dk.colle.steamproject.startscreen.domain.paging.AllGamesSource
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
@@ -19,7 +23,8 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 object StartScreenModule {
     // Http logger
-    private val loggingInterceptor = HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY)
+    private val loggingInterceptor =
+        HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY)
     private val httpClient = OkHttpClient.Builder().addInterceptor(loggingInterceptor)
 
     @Provides
@@ -56,6 +61,44 @@ object StartScreenModule {
     fun provideGetGameInformationUseCase(gameDetailService: GameDetailService): GetGameInformationUseCase {
         return GetGameInformationUseCase(
             gameDetailService = gameDetailService
+        )
+    }
+
+    @Provides
+    fun provideGetAllGamesWithInformationUseCase(
+        getAllGamesUseCase: GetAllGamesUseCase,
+        getGameInformationUseCase: GetGameInformationUseCase
+    ): GetAllGamesWithInformationUseCase {
+        return GetAllGamesWithInformationUseCase(
+            getAllGamesUseCase = getAllGamesUseCase,
+            getGameInformationUseCase = getGameInformationUseCase
+        )
+    }
+
+    @Provides
+    fun provideAllGamesPagedService(): AllGamesPagedService {
+        return Retrofit
+            .Builder()
+            .baseUrl(BuildConfig.STEAM_API_BASE_URL)
+            .addConverterFactory(GsonConverterFactory.create())
+            .client(httpClient.build())
+            .build()
+            .create(AllGamesPagedService::class.java)
+    }
+
+    @Provides
+    fun provideAllGamesPagedUseCase(allGamesPagedService: AllGamesPagedService): GetAllGamesPagedUseCase {
+        return GetAllGamesPagedUseCase(
+            allGamesPagedService = allGamesPagedService
+        )
+    }
+
+    @Provides
+    fun provideAllGamesSource(
+        allGamesPagedUseCase: GetAllGamesPagedUseCase
+    ): AllGamesSource {
+        return AllGamesSource(
+            allGamesPagedUseCase = allGamesPagedUseCase
         )
     }
 }

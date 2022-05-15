@@ -8,5 +8,5 @@ import retrofit2.http.Query
 interface GameDetailService {
 
     @GET("api/appdetails")
-    suspend fun getGameInformation(@Query("appids") id: Int): NetworkInformationWrapper<GameInformationRemote>
+    suspend fun getGameInformation(@Query("appids") id: String): NetworkInformationWrapper<GameInformationRemote>
 }

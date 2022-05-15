@@ -9,7 +9,7 @@ import java.io.IOException
 class GetGameInformationUseCase(
     private val gameDetailService: GameDetailService
 ) {
-    suspend operator fun invoke(id: Int): Result<GameInformation> {
+    suspend operator fun invoke(id: String): Result<GameInformation> {
         val result = gameDetailService.getGameInformation(id = id)
         return when (result.success) {
             true -> Result.Success(data = result.data.mapToDomain())
